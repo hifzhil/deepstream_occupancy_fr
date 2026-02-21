@@ -1,0 +1,3 @@
+[submodule "plugins/face-reidentification"]
+	path = plugins/face-reidentification
+	url = https://github.com/hifzhil/face-reidentification.git

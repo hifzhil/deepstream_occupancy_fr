@@ -1,0 +1,58 @@
+# Models and large files
+models/
+*.onnx
+*.engine
+*.trt
+
+# # Video files
+# *.mp4
+# *.avi
+# *.mov
+# *.mkv
+
+# Assets
+# assets/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# IDE
+.vscode/
+.idea/
+
+# Logs
+*.log
+
+# Environment
+.env
+venv/
+ENV/
+
+# Deepstream specific
+*.h264
+*.h265
+*.264
+*.265
+
+*.o
+config/peoplenet/*
+deepstream-test5-analytics

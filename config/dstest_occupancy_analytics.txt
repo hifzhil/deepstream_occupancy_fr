@@ -1,0 +1,137 @@
+################################################################################
+# Copyright (c) 2018-2020, NVIDIA CORPORATION. All rights reserved.
+#
+# Permission is hereby granted, free of charge, to any person obtaining a
+# copy of this software and associated documentation files (the "Software"),
+# to deal in the Software without restriction, including without limitation
+# the rights to use, copy, modify, merge, publish, distribute, sublicense,
+# and/or sell copies of the Software, and to permit persons to whom the
+# Software is furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL
+# THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+# FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+# DEALINGS IN THE SOFTWARE.
+################################################################################
+
+[application]
+enable-perf-measurement=1
+perf-measurement-interval-sec=5
+#gie-kitti-output-dir=streamscl
+
+[tiled-display]
+enable=0
+rows=1
+columns=1
+width=1280
+height=720
+gpu-id=0
+#(0): nvbuf-mem-default - Default memory allocated, specific to particular platform
+#(1): nvbuf-mem-cuda-pinned - Allocate Pinned/Host cuda memory, applicable for Tesla
+#(2): nvbuf-mem-cuda-device - Allocate Device cuda memory, applicable for Tesla
+#(3): nvbuf-mem-cuda-unified - Allocate Unified cuda memory, applicable for Tesla
+#(4): nvbuf-mem-surface-array - Allocate Surface Array memory, applicable for Jetson
+nvbuf-memory-type=0
+
+[source0]
+enable=1
+#Type - 1=CameraV4L2 2=URI 3=MultiURI
+type=3
+uri=file:///home/jammy/myDeepstreamApps/deepstream-occupancy-analytics/config/in_video.mp4
+num-sources=1
+gpu-id=0
+nvbuf-memory-type=0
+
+[sink0]
+enable=1
+type=2 #1=FakeSink 2=EglSink 3=File
+sync=0
+source-id=0
+gpu-id=0
+nvbuf-memory-type=0
+
+[osd]
+enable=1
+gpu-id=0
+border-width=2
+text-size=15
+text-color=1;1;1;1
+text-bg-color=0.3;0.3;0.3;1
+font=Arial
+show-clock=0
+clock-x-offset=800
+clock-y-offset=820
+clock-text-size=12
+clock-color=1;0;0;0
+nvbuf-memory-type=0
+process-mode=1
+display-text=1
+display-bbox=1
+display-mask=1
+# Remove unsupported landmark display settings
+# display-landmarks=1
+# landmark-point-size=6
+# landmark-point-color=1;1;1;1
+# landmark-point-bg-color=0;0;1;1
+# landmark-point-style=1
+
+[streammux]
+gpu-id=0    
+##Boolean property to inform muxer that sources are live
+live-source=1
+batch-size=30
+##time out in usec, to wait after the first buffer is available
+##to push the batch even if the complete batch is not formed
+batched-push-timeout=40000
+## Set muxer output width and height
+width=1920
+height=1080
+##Enable to maintain aspect ratio wrt source, and allow black borders, works
+##along with width, height properties
+enable-padding=0
+nvbuf-memory-type=0
+## If set to TRUE, system timestamp will be attached as ntp timestamp
+## If set to FALSE, ntp timestamp from rtspsrc, if available, will be attached
+attach-sys-ts-as-ntp=0
+
+
+
+[primary-gie]
+enable=1
+gpu-id=0
+batch-size=30
+config-file=/home/jammy/myDeepstreamApps/deepstream-occupancy-analytics/config/config_infer_secondary_yoloV5_face.txt
+process-mode=1
+network-type=3
+cluster-mode=4
+maintain-aspect-ratio=1
+symmetric-padding=1
+parse-bbox-instance-mask-func-name=NvDsInferParseYoloFace
+custom-lib-path=/home/jammy/myDeepstreamApps/deepstream-occupancy-analytics/nvdsinfer_custom_impl_Yolo_face/libnvdsinfer_custom_impl_Yolo_face.so
+output-instance-mask=1
+
+[tracker]
+enable=1
+tracker-width=640
+tracker-height=384
+gpu-id=0
+ll-lib-file=/opt/nvidia/deepstream/deepstream-7.1/lib/libnvds_nvmultiobjecttracker.so
+# ll-config-file required to set different tracker types
+# ll-config-file=../../../../samples/configs/deepstream-app/config_tracker_IOU.yml
+# ll-config-file=../../../../samples/configs/deepstream-app/config_tracker_NvSORT.yml
+ll-config-file=../../../../samples/configs/deepstream-app/config_tracker_NvDCF_perf.yml
+# ll-config-file=../../../../samples/configs/deepstream-app/config_tracker_NvDCF_accuracy.yml
+# ll-config-file=../../../../samples/configs/deepstream-app/config_tracker_NvDeepSORT.yml
+
+[nvds-analytics]
+enable=1
+config-file=nvdsanalytics_config.txt
+
+[tests]
+file-loop=0

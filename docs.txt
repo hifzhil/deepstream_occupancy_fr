@@ -1,0 +1,128 @@
+# DeepStream Occupancy Analytics Documentation
+
+## Overview
+This documentation covers the configuration and setup of the DeepStream occupancy analytics application, focusing on the PeopleNet model integration and ONNX support.
+
+## Configuration File Structure
+The main configuration file is located at `config/pgie_peoplenet_tao_config.txt`. This file controls how the PeopleNet model is loaded and executed in the DeepStream pipeline.
+
+### Key Configuration Sections
+
+1. [property] Section
+   - Contains the main model configuration parameters
+   - Controls model loading, inference settings, and input/output specifications
+
+2. [class-attrs-all] Section
+   - Contains post-processing parameters for all classes
+   - Controls detection thresholding and clustering settings
+
+3. [class-attrs-1], [class-attrs-2] Sections
+   - Contains class-specific post-processing parameters
+   - Allows fine-tuning of detection parameters for individual classes
+
+## Model Configuration Options
+
+### Using Pre-built TensorRT Engine
+To use a pre-built TensorRT engine:
+```ini
+model-engine-file=peoplenet/resnet34_peoplenet_int8.onnx_b30_gpu0_fp16.engine
+#onnx-file=peoplenet/resnet34_peoplenet_int8.onnx
+```
+
+### Building Engine from ONNX
+To build a new TensorRT engine from ONNX:
+```ini
+#model-engine-file=peoplenet/resnet34_peoplenet_int8.onnx_b30_gpu0_fp16.engine
+onnx-file=peoplenet/resnet34_peoplenet_int8.onnx
+engine-create=1
+force-implicit-batch-dim=1
+workspace-size=1024
+min-batch-size=1
+opt-batch-size=30
+max-batch-size=30
+```
+
+## Important Configuration Parameters
+
+### Model Loading Parameters
+- `gpu-id`: Specifies which GPU to use (0 for first GPU)
+- `model-engine-file`: Path to pre-built TensorRT engine
+- `onnx-file`: Path to ONNX model file (when building new engine)
+- `labelfile-path`: Path to file containing class labels
+
+### Inference Parameters
+- `batch-size`: Number of frames processed in parallel (30)
+- `network-mode`: Precision mode (0=FP32, 1=INT8, 2=FP16)
+- `process-mode`: Processing mode (1 for primary inference)
+- `model-color-format`: Input color format (0 for RGB)
+
+### Input/Output Configuration
+- `input-blob-name`: Name of input tensor in model (input_1:0)
+- `output-blob-names`: Names of output tensors (output_bbox/BiasAdd:0;output_cov/Sigmoid:0)
+- `net-scale-factor`: Input normalization factor (0.00392156862745098)
+- `offsets`: Input normalization offsets (0.0;0.0;0.0)
+- `infer-dims`: Input dimensions (channels;height;width)
+
+### Post-processing Parameters
+- `pre-cluster-threshold`: Minimum confidence score for detections (0.2)
+- `eps`: DBSCAN clustering epsilon parameter (0.7)
+- `minBoxes`: Minimum boxes for cluster formation (1)
+
+## Switching Between Engine Types
+
+### To Use Pre-built Engine
+1. Comment out ONNX-related parameters
+2. Uncomment and set `model-engine-file`
+3. Ensure engine file exists at specified path
+
+### To Build New Engine from ONNX
+1. Comment out `model-engine-file`
+2. Uncomment ONNX-related parameters
+3. Set appropriate batch sizes and workspace size
+4. Run the application to trigger engine building
+
+## Performance Considerations
+
+### Batch Size
+- Current configuration uses batch size 30
+- Affects memory usage and inference speed
+- Should match between min/opt/max batch sizes for optimal performance
+
+### Precision Mode
+- Using FP16 (network-mode=2) for better performance
+- Requires GPU with FP16 support
+- Reduces memory usage compared to FP32
+
+### Workspace Size
+- Set to 1024MB for engine building
+- May need adjustment based on model complexity
+- Larger workspace allows for more optimization options
+
+## Troubleshooting
+
+### Common Issues
+1. Missing Engine File
+   - Ensure path to engine file is correct
+   - Check file permissions
+
+2. ONNX Conversion Issues
+   - Verify ONNX model compatibility
+   - Check tensor names match configuration
+   - Ensure sufficient workspace size
+
+3. Performance Issues
+   - Adjust batch size if memory constrained
+   - Try different precision modes
+   - Check GPU utilization
+
+### Tensor Names
+- Input: input_1:0
+- Outputs: output_bbox/BiasAdd:0, output_cov/Sigmoid:0
+- Verify these match your model's actual tensor names
+
+## Best Practices
+1. Always verify tensor names when switching models
+2. Test different batch sizes for optimal performance
+3. Keep configuration file backed up
+4. Document any custom changes to parameters
+5. Monitor GPU memory usage when changing batch sizes 

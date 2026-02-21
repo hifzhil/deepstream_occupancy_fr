@@ -1,0 +1,12 @@
+# Face Database Configuration
+# Format: person_id,person_name,face_image_path,embedding_path
+
+# Example entries:
+# 1,John_Doe,reference_faces/john_doe.jpg,reference_faces/john_doe_embedding.bin
+# 2,Jane_Smith,reference_faces/jane_smith.jpg,reference_faces/jane_smith_embedding.bin
+
+# Note: 
+# - person_id: Unique identifier for each person
+# - person_name: Name of the person
+# - face_image_path: Path to the reference face image
+# - embedding_path: Path where the face embedding will be stored 
